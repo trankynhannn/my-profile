@@ -312,7 +312,9 @@
     // Activities
     actList.querySelectorAll('[data-ticker]').forEach(el => clearInterval(+el.dataset.ticker));
     actList.innerHTML = '';
-    const acts = (data.activities || []).filter(a => a.type !== 4); // skip custom status
+    const acts = (data.activities || [])
+      .filter(a => a.type !== 4) // skip custom status
+      .filter((a, _, arr) => !a.application_id || arr.findIndex(b => b.application_id === a.application_id) === arr.indexOf(a)); // dedup by application_id
     if (acts.length === 0 && st !== 'offline') {
       const p = document.createElement('p');
       p.className = 'lanyard-offline';
