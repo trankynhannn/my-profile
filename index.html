@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title></title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --card: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.08);
+      --text: #e8e8f0;
+      --muted: #7c7c9a;
+      --accent: #a78bfa;
+      --accent2: #818cf8;
+      --glow: rgba(167,139,250,0.15);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Background canvas ── */
+    #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* ── Gradient overlay ── */
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 50% at 80% 80%, rgba(99,102,241,0.12) 0%, transparent 60%);
+    }
+
+    /* ── Main wrapper ── */
+    .wrapper {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 480px;
+      padding: 20px 16px 60px;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+
+    /* ── Card base ── */
+    .card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .card:hover { border-color: rgba(167,139,250,0.25); box-shadow: 0 0 30px var(--glow); }
+
+    /* ── Profile card ── */
+    .profile-card { text-align: center; padding: 32px 24px 24px; }
+
+    .avatar-wrap {
+      position: relative; display: inline-block;
+      margin-bottom: 16px;
+    }
+    .avatar-wrap img {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 24px rgba(167,139,250,0.4);
+      display: block;
+    }
+    .status-dot {
+      position: absolute; bottom: 4px; right: 4px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #747f8d;
+      border: 2.5px solid var(--bg);
+      transition: background .4s, box-shadow .4s;
+    }
+    .status-dot.online  { background: #23d18b; box-shadow: 0 0 8px rgba(35,209,139,0.6); }
+    .status-dot.idle    { background: #f5a623; box-shadow: 0 0 8px rgba(245,166,35,0.6); }
+    .status-dot.dnd     { background: #ed4245; box-shadow: 0 0 8px rgba(237,66,69,0.6); }
+    .status-dot.offline { background: #747f8d; box-shadow: none; }
+
+    .profile-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.55rem; font-weight: 700;
+      letter-spacing: .5px;
+      background: linear-gradient(135deg, #c4b5fd, #818cf8, #a5b4fc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .profile-tag { color: var(--muted); font-size: .82rem; margin-top: 4px; }
+
+    .profile-bio {
+      margin-top: 12px;
+      font-size: .9rem; color: var(--muted);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* badges row */
+    .badges { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+    .badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 20px;
+      font-size: .75rem; font-weight: 500;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+    }
+    .badge i { font-size: .8rem; }
+    .badge.discord i { color: #5865f2; }
+    .badge.dev i { color: #a78bfa; }
+    .badge.viet i { color: #da3b3b; }
+
+    /* divider */
+    .divider {
+      width: 80%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,0.3), transparent);
+      margin: 16px auto 0;
+    }
+
+    /* ── Profile Discord inline status ── */
+    .profile-discord-row {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 8px; font-size: .78rem;
+    }
+    .profile-discord-row i { color: #5865f2; }
+    .profile-discord-status { color: var(--muted); font-weight: 500; }
+    .profile-discord-status.online  { color: #23d18b; }
+    .profile-discord-status.idle    { color: #f5a623; }
+    .profile-discord-status.dnd     { color: #ed4245; }
+    .activity-list { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+    .activity-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      font-size: .78rem;
+    }
+    .activity-item img {
+      width: 32px; height: 32px; border-radius: 8px;
+      flex-shrink: 0; object-fit: cover;
+    }
+    .activity-item .act-name { font-weight: 600; color: var(--text); }
+    .activity-item .act-detail { color: var(--muted); margin-top: 1px; font-size: .72rem; }
+    .act-elapsed {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
+      background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 8px; padding: 4px 8px;
+      font-size: .68rem; color: var(--accent); font-weight: 600; white-space: nowrap;
+    }
+    .act-elapsed i { font-size: .6rem; opacity: .7; margin-bottom: 1px; }
+    .lanyard-offline { font-size: .8rem; color: var(--muted); font-style: italic; margin-top: 8px; }
+    .live-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: #ed4245; margin-left: 4px;
+      animation: blink 1.2s ease infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ── Social icons (inside profile) ── */
+    .profile-socials { display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
+    .psoc-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      text-decoration: none; font-size: .95rem; transition: all .25s;
+    }
+    .psoc-btn:hover { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.3); transform: translateY(-3px); }
+    .psoc-btn.fb { color: #1877f2; }
+    .psoc-btn.tg { color: #26a5e4; }
+    .psoc-btn.sc { color: #ff5500; }
+    .psoc-btn.steam { color: #c7d5e0; }
+
+    /* ── Views (inside profile) ── */
+    .profile-views {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 10px; font-size: .78rem; color: var(--muted);
+    }
+    .profile-views i { color: var(--accent); font-size: .85rem; }
+    .profile-views .view-num { font-weight: 700; color: var(--text); font-size: .9rem; }
+
+    /* ── Footer ── */
+    .footer { font-size: .72rem; color: rgba(255,255,255,0.2); text-align: center; padding-top: 8px; }
+    .footer a { color: rgba(167,139,250,0.4); text-decoration: none; }
+    .footer a:hover { color: var(--accent); }
+
+    /* ── Sparkle cursor ── */
+    .sparkle {
+      position: fixed; pointer-events: none; z-index: 9999;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: sparkle-fade .6s ease forwards;
+    }
+    @keyframes sparkle-fade {
+      0%   { transform: scale(1) translate(0,0); opacity: 1; }
+      100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
+    }
+
+    /* ── Scroll animation ── */
+    .card { opacity: 0; transform: translateY(22px); animation: slide-up .55s ease forwards; }
+    .card:nth-child(1) { animation-delay: .05s; }
+    @keyframes slide-up {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="bg-gradient"></div>
+
+<div class="wrapper">
+
+  <!-- ① Profile -->
+  <div class="card profile-card">
+    <div class="avatar-wrap">
+      <img id="avatar-img"
+        src="https://cdn.discordapp.com/avatars/545640283061223464/de1186af1deedd9fc89695d8a97a8b30.webp"
+        alt="Avatar"
+        onerror="this.src='https://ui-avatars.com/api/?name=Nhan&background=7c3aed&color=fff&size=200'" />
+      <span class="status-dot offline" id="profile-status-dot"></span>
+    </div>
+    <div class="profile-name" id="profile-name">NhÂn Nè CoN</div>
+    <div class="profile-tag" id="profile-tag">@trankynhannn</div>
+    <div class="profile-bio">một hai ba bốn năm sáu.............</div>
+
+    <div class="profile-discord-row">
+      <i class="fab fa-discord"></i>
+      <span class="profile-discord-status offline" id="profile-discord-status-text">Đang kết nối...</span>
+      <span class="live-dot" id="lanyard-live" style="display:none;"></span>
+    </div>
+
+    <div class="badges">
+      <span class="badge discord"><i class="fab fa-discord"></i> Discord</span>
+      <span class="badge dev"><i class="fas fa-code"></i> Developer</span>
+      <span class="badge viet"><i class="fas fa-flag"></i> Việt Nam</span>
+    </div>
+    <div class="divider"></div>
+    <div class="activity-list" id="activity-list"></div>
+
+    <div class="profile-socials">
+      <a class="psoc-btn fb" href="https://facebook.com/trankynhannn" target="_blank" rel="noopener noreferrer" title="Facebook"><i class="fab fa-facebook"></i></a>
+      <a class="psoc-btn tg" href="https://t.me/zzzbxha" target="_blank" rel="noopener noreferrer" title="Telegram"><i class="fab fa-telegram"></i></a>
+      <a class="psoc-btn sc" href="https://soundcloud.com/trankynhannn" target="_blank" rel="noopener noreferrer" title="SoundCloud"><i class="fab fa-soundcloud"></i></a>
+      <a class="psoc-btn steam" href="https://steamcommunity.com/id/trankynhannn" target="_blank" rel="noopener noreferrer" title="Steam"><i class="fab fa-steam"></i></a>
+    </div>
+
+    <div class="profile-views">
+      <i class="fas fa-eye"></i>
+      <span class="view-num" id="view-count">...</span>
+      <span>lượt xem</span>
+    </div>
+  </div>
+
+  <div class="footer">made with ♥ · <a href="#">trankynhannn</a></div>
+</div>
+
+<script>
+/* ─────────── Lanyard Real-time Discord ─────────── */
+(function () {
+  const USER_ID = '545640283061223464';
+  const STATUS_LABELS = { online: 'Online', idle: 'Không hoạt động', dnd: 'Không làm phiền', offline: 'Offline' };
+  let ws, heartbeatInterval;
+
+  const actList            = document.getElementById('activity-list');
+  const liveDot            = document.getElementById('lanyard-live');
+  const profileAvatar      = document.getElementById('avatar-img');
+  const profileStatusDot   = document.getElementById('profile-status-dot');
+  const profileName        = document.getElementById('profile-name');
+  const profileTag         = document.getElementById('profile-tag');
+  const profileDsStatus    = document.getElementById('profile-discord-status-text');
+
+  function applyPresence(data) {
+    liveDot.style.display = 'inline-block';
+
+    // Avatar
+    if (data.discord_user && data.discord_user.avatar) {
+      const ext = data.discord_user.avatar.startsWith('a_') ? 'gif' : 'webp';
+      profileAvatar.src = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.${ext}?size=256`;
+    }
+
+    // Display name + username
+    if (data.discord_user) {
+      const displayName = data.discord_user.global_name || data.discord_user.username || 'trankynhannn';
+      profileName.textContent = displayName;
+      profileTag.textContent  = `@${data.discord_user.username || 'trankynhannn'}`;
+    }
+
+    // Status
+    const st = data.discord_status || 'offline';
+    profileStatusDot.className  = `status-dot ${st}`;
+    profileDsStatus.className   = `profile-discord-status ${st}`;
+    profileDsStatus.textContent = STATUS_LABELS[st] || st;
+
+    // Activities
+    actList.querySelectorAll('[data-ticker]').forEach(el => clearInterval(+el.dataset.ticker));
+    actList.innerHTML = '';
+    const acts = (data.activities || []).filter(a => a.type !== 4); // skip custom status
+    if (acts.length === 0 && st !== 'offline') {
+      const p = document.createElement('p');
+      p.className = 'lanyard-offline';
+      p.textContent = 'Không có hoạt động nào.';
+      actList.appendChild(p);
+    }
+    acts.forEach(act => {
+      const div = document.createElement('div');
+      div.className = 'activity-item';
+
+      let imgSrc = '';
+      if (act.assets && act.assets.large_image) {
+        const li = act.assets.large_image;
+        if (li.startsWith('mp:external/')) {
+          imgSrc = 'https://media.discordapp.net/external/' + li.replace('mp:external/', '');
+        } else {
+          imgSrc = `https://cdn.discordapp.com/app-assets/${act.application_id}/${li}.webp`;
+        }
+      } else if (act.application_id) {
+        imgSrc = `https://dcdn.dstn.to/app-icons/${act.application_id}`;
+      }
+
+      const detail = [act.details, act.state].filter(Boolean).join(' • ');
+      const startTs = act.timestamps && act.timestamps.start ? act.timestamps.start : null;
+
+      div.innerHTML = `
+        ${imgSrc ? `<img src="${imgSrc}" alt="" onerror="this.style.display='none'"/>` : ''}
+        <div style="min-width:0;flex:1">
+          <div class="act-name">${act.name || ''}</div>
+          ${detail ? `<div class="act-detail">${detail}</div>` : ''}
+        </div>
+        ${startTs ? `<div class="act-elapsed"><i class="fas fa-clock"></i><span>...</span></div>` : ''}`;
+      actList.appendChild(div);
+
+      if (startTs) {
+        const elapsedEl = div.querySelector('.act-elapsed span');
+        function tick() {
+          const diff = Math.floor((Date.now() - startTs) / 1000);
+          const h = Math.floor(diff / 3600);
+          const m = Math.floor((diff % 3600) / 60);
+          const s = diff % 60;
+          elapsedEl.textContent = h > 0
+            ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+            : `${m}:${String(s).padStart(2,'0')}`;
+        }
+        tick();
+        const ticker = setInterval(tick, 1000);
+        div.dataset.ticker = ticker;
+      }
+    });
+  }
+
+  function connect() {
+    ws = new WebSocket('wss://api.lanyard.rest/socket');
+
+    ws.addEventListener('open', () => {
+      ws.send(JSON.stringify({ op: 2, d: { subscribe_to_id: USER_ID } }));
+    });
+
+    ws.addEventListener('message', e => {
+      const msg = JSON.parse(e.data);
+      if (msg.op === 1) { // hello – start heartbeat
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ op: 3 }));
+        }, msg.d.heartbeat_interval);
+      }
+      if (msg.op === 0) { // event
+        if (msg.t === 'INIT_STATE' || msg.t === 'PRESENCE_UPDATE') {
+          applyPresence(msg.d);
+        }
+      }
+    });
+
+    ws.addEventListener('close', () => {
+      clearInterval(heartbeatInterval);
+      liveDot.style.display = 'none';
+      profileDsStatus.textContent = 'Đã mất kết nối...';
+      setTimeout(connect, 5000);
+    });
+
+    ws.addEventListener('error', () => ws.close());
+  }
+
+  connect();
+})();
+
+/* ─────────── Stars background ─────────── */
+(function () {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  function mkStars() {
+    stars = Array.from({ length: 120 }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.2 + .3,
+      a: Math.random(),
+      speed: Math.random() * .004 + .001,
+    }));
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(s => {
+      s.a += s.speed;
+      const alpha = (Math.sin(s.a) * .5 + .5) * .7;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(167,139,250,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize(); mkStars(); draw();
+  window.addEventListener('resize', () => { resize(); mkStars(); });
+})();
+
+/* ─────────── Sparkle cursor ─────────── */
+document.addEventListener('mousemove', e => {
+  const el = document.createElement('div');
+  el.className = 'sparkle';
+  const tx = (Math.random() - .5) * 40, ty = (Math.random() - .5) * 40;
+  el.style.cssText = `left:${e.clientX - 3}px;top:${e.clientY - 3}px;--tx:${tx}px;--ty:${ty}px`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 700);
+});
+
+/* ─────────── Typewriter title ─────────── */
+(function () {
+  const text = 'trankynhannn';
+  const cursor = ' |';
+  let i = 0, deleting = false;
+  function tick() {
+    if (!deleting) {
+      i++;
+      document.title = text.slice(0, i) + cursor;
+      if (i === text.length) { deleting = true; setTimeout(tick, 1400); return; }
+    } else {
+      i--;
+      document.title = text.slice(0, i) + cursor;
+      if (i === 0) { deleting = false; setTimeout(tick, 500); return; }
+    }
+    setTimeout(tick, deleting ? 60 : 100);
+  }
+  tick();
+})();
+
+/* ─────────── View counter (real-time) ─────────── */
+(function () {
+  const el = document.getElementById('view-count');
+  el.textContent = '...';
+
+  fetch('https://api.counterapi.dev/v1/trankynhannn-profile/views/up')
+    .then(r => r.json())
+    .then(data => {
+      const views = data.count || 0;
+      let n = 0;
+      const step = Math.max(1, Math.ceil(views / 50));
+      const timer = setInterval(() => {
+        n = Math.min(n + step, views);
+        el.textContent = n.toLocaleString('vi-VN');
+        if (n >= views) clearInterval(timer);
+      }, 25);
+    })
+    .catch(() => {
+      el.textContent = '—';
+    });
+})();
+</script>
+</body>
+</html>
