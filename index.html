@@ -143,18 +143,23 @@
     .profile-discord-status.dnd     { color: #ed4245; }
     .activity-list { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
     .activity-item {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; flex-direction: column; gap: 6px;
       padding: 8px 10px; border-radius: 12px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.07);
-      font-size: .78rem;
+      font-size: .78rem; text-align: left;
     }
+    .act-body { display: flex; align-items: flex-start; gap: 10px; }
     .activity-item img {
-      width: 32px; height: 32px; border-radius: 8px;
+      width: 100%;
       flex-shrink: 0; object-fit: cover;
     }
-    .activity-item .act-name { font-weight: 600; color: var(--text); }
-    .activity-item .act-detail { color: var(--muted); margin-top: 1px; font-size: .72rem; }
+    .activity-item .act-name {
+      font-size: .7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--accent); opacity: .85;
+    }
+    .activity-item .act-detail { color: var(--text); font-weight: 500; margin-top: 1px; font-size: .75rem; }
+    .activity-item .act-detail.state { color: var(--muted); font-weight: 400; font-size: .72rem; }
     .act-elapsed {
       flex-shrink: 0;
       display: flex; flex-direction: column; align-items: center; gap: 1px;
@@ -217,6 +222,134 @@
     .card:nth-child(1) { animation-delay: .05s; }
     @keyframes slide-up {
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Activity type differentiation ── */
+    .act-type-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .62rem; font-weight: 700; letter-spacing: .7px;
+      text-transform: uppercase; padding: 2px 9px; border-radius: 20px;
+      width: fit-content; margin-bottom: 5px;
+    }
+
+    /* ─ Music / Listening ─ */
+    .activity-item.type-music {
+      border-color: rgba(30,215,96,0.28);
+      background: linear-gradient(135deg, rgba(30,215,96,0.07) 0%, rgba(0,0,0,0) 100%);
+    }
+    .activity-item.type-music .act-name { color: #1ed760; }
+    .activity-item.type-music .act-type-badge {
+      background: rgba(30,215,96,0.13); color: #1ed760;
+      border: 1px solid rgba(30,215,96,0.28);
+    }
+    .activity-item.type-music img {
+      width: 62px; height: 62px; border-radius: 8px;
+      border: 2px solid rgba(30,215,96,0.45);
+      box-shadow: 0 0 14px rgba(30,215,96,0.22);
+    }
+    .music-eq {
+      display: flex; align-items: flex-end; gap: 2px;
+      height: 13px; margin-top: 5px;
+    }
+    .music-eq span {
+      width: 3px; border-radius: 2px; background: #1ed760;
+      animation: eq-bar .7s ease-in-out infinite alternate;
+    }
+    .music-eq span:nth-child(1){ height:5px;  animation-delay:0s; }
+    .music-eq span:nth-child(2){ height:10px; animation-delay:.12s; }
+    .music-eq span:nth-child(3){ height:13px; animation-delay:.24s; }
+    .music-eq span:nth-child(4){ height:7px;  animation-delay:.36s; }
+    .music-eq span:nth-child(5){ height:11px; animation-delay:.48s; }
+    @keyframes eq-bar { from{opacity:.4;transform:scaleY(.25)} to{opacity:1;transform:scaleY(1)} }
+
+    /* ─ Watching / Video ─ */
+    .activity-item.type-watching {
+      border-color: rgba(255,70,70,0.22);
+      background: rgba(255,70,70,0.03);
+      padding: 0; overflow: hidden;
+    }
+    .activity-item.type-watching .act-name { color: #ff5252; }
+    .activity-item.type-watching .act-type-badge {
+      background: rgba(255,70,70,0.12); color: #ff5252;
+      border: 1px solid rgba(255,70,70,0.25);
+      margin: 10px 12px 0;
+    }
+    .watch-thumb-wrap {
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      overflow: hidden; margin-top: 8px;
+    }
+    .watch-thumb {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .3s;
+    }
+    .activity-item.type-watching:hover .watch-thumb { transform: scale(1.04); }
+    .watch-play-icon {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.28);
+    }
+    .watch-play-icon i {
+      font-size: 1.8rem; color: rgba(255,255,255,0.88);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.6));
+    }
+    .type-watching .act-body { padding: 8px 12px 10px; }
+
+    /* ─ Streaming ─ */
+    .activity-item.type-streaming {
+      border-color: rgba(147,51,234,0.3);
+      background: rgba(147,51,234,0.04);
+    }
+    .activity-item.type-streaming .act-name { color: #a855f7; }
+    .activity-item.type-streaming .act-type-badge {
+      background: rgba(147,51,234,0.15); color: #a855f7;
+      border: 1px solid rgba(147,51,234,0.3);
+    }
+    .activity-item.type-streaming img {
+      width: 56px; height: 56px; border-radius: 10px;
+      border: 2px solid rgba(147,51,234,0.4);
+      box-shadow: 0 0 12px rgba(147,51,234,0.25);
+    }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #ed4245; color: #fff;
+      font-size: .58rem; font-weight: 800; letter-spacing: 1px;
+      padding: 1px 5px; border-radius: 3px; text-transform: uppercase;
+      vertical-align: middle; margin-left: 5px;
+    }
+    .live-badge::before {
+      content:''; display:inline-block; width:5px; height:5px; border-radius:50%;
+      background:#fff; animation: blink 1.2s ease infinite;
+    }
+
+    /* ─ Playing game ─ */
+    .activity-item.type-game {
+      border-color: rgba(167,139,250,0.22);
+    }
+    .activity-item.type-game .act-name { color: var(--accent); }
+    .activity-item.type-game .act-type-badge {
+      background: rgba(167,139,250,0.1); color: var(--accent);
+      border: 1px solid rgba(167,139,250,0.22);
+    }
+    .activity-item.type-game img {
+      width: 54px; height: 54px; border-radius: 10px;
+      border: 2px solid rgba(167,139,250,0.4);
+      box-shadow: 0 0 12px rgba(167,139,250,0.2);
+    }
+
+    /* ─ Regular app ─ */
+    .activity-item.type-app {
+      border-color: rgba(255,255,255,0.07);
+    }
+    .activity-item.type-app .act-name { color: var(--muted); }
+    .activity-item.type-app .act-type-badge {
+      background: rgba(255,255,255,0.05); color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .activity-item.type-app img {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.13);
+      background: rgba(255,255,255,0.06);
+      padding: 3px;
     }
 
   </style>
@@ -325,6 +458,14 @@
       const div = document.createElement('div');
       div.className = 'activity-item';
 
+      // ── Detect type ──────────────────────────────────────────
+      const isMusic     = act.type === 2;
+      const isWatching  = act.type === 3 || (act.type === 0 && act.name && /youtube/i.test(act.name));
+      const isStreaming  = act.type === 1;
+      const isPlaying   = !isMusic && !isWatching && !isStreaming;
+      const likelyGame  = isPlaying && !!(act.assets && act.assets.large_image);
+
+      // ── Resolve image URL ─────────────────────────────────────
       let imgSrc = '';
       if (act.assets && act.assets.large_image) {
         const li = act.assets.large_image;
@@ -339,16 +480,80 @@
         imgSrc = `https://dcdn.dstn.to/app-icons/${act.application_id}`;
       }
 
-      const detail = [act.details, act.state].filter(Boolean).join(' • ');
       const startTs = act.timestamps && act.timestamps.start ? act.timestamps.start : null;
+      const elapsedHTML = startTs
+        ? `<div class="act-elapsed"><i class="fas fa-clock"></i><span>...</span></div>`
+        : '';
+      const imgHTML = imgSrc
+        ? `<img src="${imgSrc}" alt="" onerror="this.style.display='none'"/>`
+        : '';
 
-      div.innerHTML = `
-        ${imgSrc ? `<img src="${imgSrc}" alt="" onerror="this.style.display='none'"/>` : ''}
-        <div style="min-width:0;flex:1">
-          <div class="act-name">${act.name || ''}</div>
-          ${detail ? `<div class="act-detail">${detail}</div>` : ''}
-        </div>
-        ${startTs ? `<div class="act-elapsed"><i class="fas fa-clock"></i><span>...</span></div>` : ''}`;
+      // ── Build HTML per type ───────────────────────────────────
+      if (isMusic) {
+        div.classList.add('type-music');
+        div.innerHTML = `
+          <span class="act-type-badge"><i class="fas fa-music"></i> NGHE NHẠC</span>
+          <div class="act-body">
+            ${imgHTML}
+            <div style="min-width:0;flex:1">
+              <div class="act-name">${act.name || ''}</div>
+              ${act.details ? `<div class="act-detail">${act.details}</div>` : ''}
+              ${act.state   ? `<div class="act-detail state">${act.state}</div>` : ''}
+              <div class="music-eq"><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            ${elapsedHTML}
+          </div>`;
+
+      } else if (isWatching) {
+        div.classList.add('type-watching');
+        const thumbHTML = imgSrc ? `
+          <div class="watch-thumb-wrap">
+            <img class="watch-thumb" src="${imgSrc}" alt="" onerror="this.closest('.watch-thumb-wrap').style.display='none'"/>
+          </div>` : '';
+        div.innerHTML = `
+          <span class="act-type-badge"><i class="fas fa-play"></i> XEM VIDEO</span>
+          ${thumbHTML}
+          <div class="act-body">
+            <div style="min-width:0;flex:1">
+              <div class="act-name">${act.name || ''}</div>
+              ${act.details ? `<div class="act-detail">${act.details}</div>` : ''}
+              ${act.state   ? `<div class="act-detail state">${act.state}</div>` : ''}
+            </div>
+            ${elapsedHTML}
+          </div>`;
+
+      } else if (isStreaming) {
+        div.classList.add('type-streaming');
+        div.innerHTML = `
+          <span class="act-type-badge"><i class="fas fa-tower-broadcast"></i> ĐANG STREAM <span class="live-badge">LIVE</span></span>
+          <div class="act-body">
+            ${imgHTML}
+            <div style="min-width:0;flex:1">
+              <div class="act-name">${act.name || ''}</div>
+              ${act.details ? `<div class="act-detail">${act.details}</div>` : ''}
+              ${act.state   ? `<div class="act-detail state">${act.state}</div>` : ''}
+            </div>
+            ${elapsedHTML}
+          </div>`;
+
+      } else {
+        div.classList.add(likelyGame ? 'type-game' : 'type-app');
+        const typeLabel = likelyGame
+          ? '<i class="fas fa-gamepad"></i> ĐANG CHƠI'
+          : '<i class="fas fa-desktop"></i> ĐANG DÙNG';
+        div.innerHTML = `
+          <span class="act-type-badge">${typeLabel}</span>
+          <div class="act-body">
+            ${imgHTML}
+            <div style="min-width:0;flex:1">
+              <div class="act-name">${act.name || ''}</div>
+              ${act.details ? `<div class="act-detail">${act.details}</div>` : ''}
+              ${act.state   ? `<div class="act-detail state">${act.state}</div>` : ''}
+            </div>
+            ${elapsedHTML}
+          </div>`;
+      }
+
       actList.appendChild(div);
 
       if (startTs) {
