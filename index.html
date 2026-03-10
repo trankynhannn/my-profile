@@ -328,7 +328,9 @@
         const li = act.assets.large_image;
         if (li.startsWith('mp:external/')) {
           imgSrc = 'https://media.discordapp.net/external/' + li.replace('mp:external/', '');
-        } else {
+        } else if (li.startsWith('spotify:')) {
+          imgSrc = 'https://i.scdn.co/image/' + li.replace('spotify:', '');
+        } else if (act.application_id) {
           imgSrc = `https://cdn.discordapp.com/app-assets/${act.application_id}/${li}.webp`;
         }
       } else if (act.application_id) {
